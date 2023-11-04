@@ -2,53 +2,45 @@
 import streamlit as st
 import pandas as pd
 from sklearn import preprocessing
+import joblib
+import numpy as np
 
 
-# Load your model
-import joblib  # Replace with the appropriate library for your model
-
-st.title("Used Car Price Prediction")
+model = joblib.load("lr_model.pkl")
+preprocessor = joblib.load("preprocessor.pkl")
 
 
-# Load your trained model
-preprocessor_model = joblib.load("preprocessor.pkl")  # Replace with your model file
-model = joblib.load("RidgeCV_Model.pkl")
 
-# Input fields for the features
-location = st.selectbox("Location", ['Mumbai', 'Pune', 'Chennai', 'Coimbatore', 'Hyderabad', 'Jaipur',
-       'Kochi', 'Kolkata', 'Delhi', 'Bangalore', 'Ahmedabad'])  # Replace with actual locations
-fuel_type = st.selectbox("Fuel Type", ["Petrol", "Diesel", "CNG", "LPG"])  # Replace with actual fuel types
-transmission = st.selectbox("Transmission", ["Manual", "Automatic"])  # Replace with actual transmission types
-owner_type = st.selectbox("Owner Type", ["First", "Second", "Third", "Fourth & Above"])  # Replace with actual owner types
-brand = st.text_input("Brand")
-year = st.number_input("Year")
-kilometers_driven = st.number_input("Kilometers Driven")
-mileage = st.number_input("Mileage")
-engine = st.number_input("Engine")
-power = st.number_input("Power")
-seats = st.number_input("Seats")
 
-if st.button("Predict Price"):
-    # Create a dictionary from the user input
-    
-    user_data = {
-        'Location': location,
-        'Fuel_Type': fuel_type,
-        'Transmission': transmission,
-        'Owner_Type': owner_type,
-        'Brand': brand,
-        'Year': year,
-        'Kilometers_Driven': kilometers_driven,
-        'Mileage': mileage,
-        'Engine': engine,
-        'Power': power,
-        'Seats': seats
-    }
 
-    # Create a DataFrame from the user data
-    input_data = pd.DataFrame([user_data])
-    preprocessed_data = preprocessor_model.transform(input_data)
-    print("yeh")
-    prediction = model.predict(preprocessed_data)
-    print("yehh")
-    st.write(f"Predicted Price: ₦{abs(prediction[0].round(2) * 9.20).round(2)}")
+# Create a title for the app.
+st.title('Used Car Price Prediction')
+
+# Create input fields for the user to enter the features of the car.
+manufacturer = st.text_input('Manufacturer')
+year = st.number_input('Year')
+condition = st.selectbox('Condition', options=['Nigerian Used', 'Foriegn Used', 'Brand New'])
+mileage = st.number_input('Mileage (km)')
+engine_size = st.number_input('Engine size (L)')
+fuel = st.selectbox('Fuel type', options=['Petrol', 'Diesel', 'Hybrid', 'Electric'])
+transmission = st.selectbox('Transmission type', options=['Automatic', 'Manual', 'CVT', 'AMT'])
+
+# Create a button to trigger the prediction function.
+if st.button('Predict price'):
+    # Make a prediction using the model.
+   
+
+# Assuming you have your data in separate variables like manufacturer, year, condition, mileage, engine_size, fuel, transmission
+    data = pd.DataFrame({'Make': [manufacturer], 'Year of manufacture': [year], 'Condition': [condition], 'Mileage': [mileage],
+                        'Engine Size': [engine_size], 'Fuel': [fuel], 'Transmission': [transmission]})
+
+    # Assuming 'preprocessor' is a pre-trained preprocessing pipeline, and 'model' is a pre-trained machine learning model
+    transformed_data = preprocessor.transform(data)
+    prediction = model.predict(transformed_data)
+
+
+    # Display the predicted price to the user.
+    st.write('Predicted price: ₦{:.2f}'.format(prediction[0]))
+
+
+
